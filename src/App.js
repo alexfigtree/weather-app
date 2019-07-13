@@ -2,8 +2,7 @@
 import React, { Component } from 'react';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
-
-import logo from './logo.svg';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
 import './App.css';
 
 
@@ -14,9 +13,9 @@ const searchOptions = [
     value: 'City'
   },
   {
-    key: 'Zip',
-    text: 'Zip',
-    value: 'Zip'
+    key: 'Lat/Long',
+    text: 'Lat/Long',
+    value: 'Lat/Long'
   },
 ]
 
@@ -26,6 +25,10 @@ class App extends Component {
     this.state = {
       error: null,
       isLoaded: false,
+      cityChosen: false,
+      zipChosen: false,
+      showNameInput: false,
+      showLatLongInput: false,
       items: [],
       latitude: '',
       longitude: '',
@@ -36,27 +39,6 @@ class App extends Component {
   componentDidMount() {
     //get user's location and show them weather when they load the app:
     this.getMyLocation();
-
-    
-    /*fetch("https://jsonplaceholder.typicode.com/users")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )*/
   }
 
   //getMyLocation gets the user's lat/long coordinates
@@ -64,7 +46,6 @@ class App extends Component {
     const location = window.navigator && window.navigator.geolocation
     
     if (location) {
-      console.log('locationnn', location);
       location.getCurrentPosition((position) => {
         this.setState({
           latitude: position.coords.latitude,
@@ -80,9 +61,9 @@ class App extends Component {
   //getWeatherLatLong makes API call with user's lat/long
   getWeatherLatLong(lat, long){
     const APIKEY =  '18aaef05aea27a3ddbb3d40975b82b7a';
-    console.log('get getWeatherLatLong called iwth lat', lat);
-    //fetch("api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long)
-    fetch("http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long + "&APPID=18aaef05aea27a3ddbb3d40975b82b7a&units=imperial")
+    let apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=";
+
+    fetch(apiUrl + lat + "&lon=" + long + "&APPID=" + APIKEY + "&units=imperial")
       .then(res => res.json())
       .then(
         (json) => {
@@ -92,7 +73,10 @@ class App extends Component {
             coord: json.coord,
             temp: json.main.temp,
             pressure: json.main.pressure,
-            humidity: json.main.humidity
+            humidity: json.main.humidity,
+            tempData: [{name: 'right now', temperature: json.main.temp}],
+            humidityData: [{name: 'right now', humidity: json.main.humidity}],
+            presureData: [{name: 'right now', pressure: json.main.pressure}],
           });
         },
         // Note: it's important to handle errors here
@@ -107,14 +91,81 @@ class App extends Component {
       )
   }
 
-  handleCityOrZip = (e, { value }) => 
+  //getWeatherByCityName makes API call with user's City name
+  getWeatherByCityName(cityName){
+    const APIKEY =  '18aaef05aea27a3ddbb3d40975b82b7a';
+    let apiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
+
+    fetch(apiUrl + cityName + "&APPID=" + APIKEY + "&units=imperial")
+      .then(res => res.json())
+      .then(
+        (json) => {
+          console.log('json', json);
+          this.setState({
+            isLoaded: true,
+            coord: json.coord,
+            temp: json.main.temp,
+            pressure: json.main.pressure,
+            humidity: json.main.humidity,
+            tempData: [{name: 'right now', temperature: json.main.temp}],
+            humidityData: [{name: 'right now', humidity: json.main.humidity}],
+            presureData: [{name: 'right now', pressure: json.main.pressure}],
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            error
+          });
+        }
+      )
+  }
+
+  handleCityOrLatLong = (e, { value }) => 
     this.setState({ dropdownSelection: value });
+
+  //handle input text
+  handleCityName = (e, { value }) => 
+    this.setState({ cityName: value });
+
+  handleLat = (e, { value }) => 
+    this.setState({ latChosen: value });
+
+  handleLong = (e, { value }) => 
+    this.setState({ longChosen: value });
 
   handleButtonClick(dropdownSelection){
     //const {dropdownSelection} = this.state;
+
+    console.log('values so far:');
     console.log('you chose', dropdownSelection);
+    console.log('longChosen', this.state.longChosen);
+    console.log('latChosen', this.state.latChosen);
+    console.log('this.state.cityname', this.state.cityName);
+    if(dropdownSelection === 'City'){
+      this.getWeatherByCityName(this.state.cityName);
+    }else{
+      this.getWeatherLatLong(this.state.latChosen, this.state.longChosen);
+    }
+
+/*    if(dropdownSelection == 'City'){
+      this.setState({
+        cityChosen: true,
+      });
+    }else{
+      this.setState({
+        zipChosen: true,
+      });
+    }
+
+    let urlToCall = ' ';*/
 
   }
+
+
 
   render() {
     const { latitude, longitude, temp, pressure, humidity, dropdownSelection, locationInput } = this.state;
@@ -126,53 +177,86 @@ class App extends Component {
         <div className="subHeader">Search by</div>
         <br />
         <Dropdown
-          placeholder='City or zip'
+          placeholder='City or Lat/Long'
           fluid
           selection
           options={searchOptions}
           className='dropdown-name'
-          onChange={this.handleCityOrZip}
+          onChange={this.handleCityOrLatLong}
           value={dropdownSelection}
         />
         <div>dropdown selection {dropdownSelection}</div>
         <br />
         <div className="subHeader">Search for your location</div>
         <br /><br />
-        <Input focus placeholder='Enter city or zip' />
+
+        {this.state.dropdownSelection === 'City' && (
+          <Input focus placeholder='Enter city' type="text" value={locationInput} onChange={this.handleCityName}/>
+        )}
+
+        {this.state.dropdownSelection === 'Lat/Long' && (
+          <div>
+            <Input focus placeholder='Enter latitude' type="text" value={latitude} onChange={this.handleLat}/>
+            <br />
+            <Input focus placeholder='Enter longitude' type="text" value={longitude} onChange={this.handleLong}/>
+          </div>
+        )}
+
         <br />
+
         <Button 
           className='button'
           onClick={this.handleButtonClick.bind(this, dropdownSelection)}
-          //onClick={this.handleButtonClick(dropdownSelection)}
         >Lets go!</Button>
+
         <br />
-        <input type="text" value={latitude} />
-        <input type="text" value={longitude} />
+        <div>Lat: {latitude}</div>
+        <div>Long: {longitude}</div>
+
         <div>temp: {temp}</div>
         <div>pressure: {pressure}</div>
         <div>humidity: {humidity}</div>
+
+        {this.state.tempData && (
+          <div>
+            <div className="subHeader">Temperature results:</div>
+            <LineChart width={250} height={200} data={this.state.tempData}>
+              <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
+              <CartesianGrid stroke="#ccc" />
+             
+              <YAxis />
+              <Legend />
+            </LineChart>
+          </div>
+        )}
+
+        {this.state.humidityData && (
+          <div>
+            <div className="subHeader">Humidity results:</div>
+            <LineChart width={250} height={200} data={this.state.humidityData}>
+              <Line type="monotone" dataKey="humidity" stroke="#82ca9d" />
+              <CartesianGrid stroke="#ccc" />
+          
+              <YAxis />
+              <Legend />
+            </LineChart>
+          </div>
+        )}
+
+        {this.state.presureData && (
+          <div>
+            <div className="subHeader">Pressure results:</div>
+            <LineChart width={250} height={200} data={this.state.presureData}>
+              <Line type="monotone" dataKey="pressure" stroke="#8884d8" />
+              <CartesianGrid stroke="#ccc" />
+             
+              <YAxis />
+              <Legend />
+            </LineChart>
+          </div>
+        )}
       </div>
     )
-/*    
-    const { error, isLoaded, items } = this.state;
-    if (error) {
-      return <div>Error: {error.message}</div>;
-    } else if (!isLoaded) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <div>
-        <div className="App">Data has been loaded</div>
-          <ul>
-            {items.map(item => (
-              <li key={item.name}>
-                {item.name} {item.price}
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }*/
   }
 }
 
