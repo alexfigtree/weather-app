@@ -1,5 +1,9 @@
 .App {
   text-align: center;
+  color: rgb(29,18,43);
+  max-width: 350px;
+  text-align: center;
+  justify-content: center;
 }
 
 header {
@@ -7,6 +11,37 @@ header {
   padding-top: 40px;
 }
 
+.title {
+  font-weight: 600;
+  font-size: 30px;
+  margin-top: 40px;
+}
+
+.ui.selection.dropdown {
+  border-color: rgb(29,18,43);
+}
+
+.ui.selection.active.dropdown{
+  border-color: rgb(29,18,43);
+  box-shadow: none;
+  width: 200px;
+}
+
+.ui.selection.dropdown:focus {
+  border-color: rgb(29,18,43);
+}
+
+::selection{
+  background-color: rgb(29,18,43); 
+}
+
+.ui.input.focus>input, .ui.input>input:focus{
+  border-color: rgb(29,18,43);
+}
+
+Button{
+
+}
 
 @keyframes App-logo-spin {
   from {
