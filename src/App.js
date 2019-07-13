@@ -106,26 +106,27 @@ class App extends Component {
   }
 
   render() {
-
     const { latitude, longitude, temp, pressure, humidity } = this.state;
-
-    //console.log('lateuts', latitude);
     
     return (
       <div className="App">
         <div className="title">Weather app</div>
-        <h4>Search by</h4>
+        <br />
+        <div className="subHeader">Search by</div>
+        <br />
         <Dropdown
           placeholder='City or zip'
           fluid
           selection
           options={searchOptions}
+          className='dropdown-name'
         />
         <br />
-        <h4>Search for your location</h4>
+        <div className="subHeader">Search for your location</div>
+        <br /><br />
         <Input focus placeholder='Enter city or zip' />
         <br />
-        <Button>Lets go!</Button>
+        <Button className='button'>Lets go!</Button>
         <br />
         <input type="text" value={latitude} />
         <input type="text" value={longitude} />

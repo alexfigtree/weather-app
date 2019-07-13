@@ -1,24 +1,40 @@
 .App {
   text-align: center;
   color: rgb(29,18,43);
-  max-width: 350px;
+  max-width: 250px;
   text-align: center;
   justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-header {
-  font-size: 20px;
-  padding-top: 40px;
+.subHeader{
+  font-weight: 600;
+  font-size: 16px;
+  float:left;
 }
 
 .title {
   font-weight: 600;
   font-size: 30px;
   margin-top: 40px;
+  margin-bottom: 25px;
 }
 
 .ui.selection.dropdown {
   border-color: rgb(29,18,43);
+  
+}
+input{
+  color: rgb(29,18,43);
+}
+.dropdown-name{
+  margin-top: 8px;
+  color: rgb(29,18,43);
+}
+
+div.default.text {
+  color: rgb(29,18,43);
 }
 
 .ui.selection.active.dropdown{
@@ -31,16 +47,27 @@ header {
   border-color: rgb(29,18,43);
 }
 
-::selection{
-  background-color: rgb(29,18,43); 
-}
-
 .ui.input.focus>input, .ui.input>input:focus{
   border-color: rgb(29,18,43);
 }
 
-Button{
+div.ui.focus.input {
+  margin-top: -10px;
+  width: 250px;
 
+}
+
+button.ui.button{
+  background-color: rgb(29,18,43); 
+  color: white;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 250px;
+}
+
+button.ui.button:hover{
+  background-color: rgb(68, 45, 97);
+  color: white;
 }
 
 @keyframes App-logo-spin {
