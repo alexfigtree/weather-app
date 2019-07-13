@@ -34,6 +34,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    //get user's location and show them weather when they load the app:
     this.getMyLocation();
 
     
@@ -58,6 +59,25 @@ class App extends Component {
       )*/
   }
 
+  //getMyLocation gets the user's lat/long coordinates
+  getMyLocation() {
+    const location = window.navigator && window.navigator.geolocation
+    
+    if (location) {
+      console.log('locationnn', location);
+      location.getCurrentPosition((position) => {
+        this.setState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        this.getWeatherLatLong(position.coords.latitude, position.coords.longitude);
+      }, (error) => {
+        this.setState({ latitude: 'err-latitude', longitude: 'err-longitude' })
+      })
+    }
+  }
+
+  //getWeatherLatLong makes API call with user's lat/long
   getWeatherLatLong(lat, long){
     const APIKEY =  '18aaef05aea27a3ddbb3d40975b82b7a';
     console.log('get getWeatherLatLong called iwth lat', lat);
@@ -87,26 +107,17 @@ class App extends Component {
       )
   }
 
-  getMyLocation() {
-    const location = window.navigator && window.navigator.geolocation
-    
-    if (location) {
-      console.log('locationnn', location);
-      location.getCurrentPosition((position) => {
-        this.setState({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        this.getWeatherLatLong(position.coords.latitude, position.coords.longitude);
-      }, (error) => {
-        this.setState({ latitude: 'err-latitude', longitude: 'err-longitude' })
-      })
-    }
+  handleCityOrZip = (e, { value }) => 
+    this.setState({ dropdownSelection: value });
+
+  handleButtonClick(dropdownSelection){
+    //const {dropdownSelection} = this.state;
+    console.log('you chose', dropdownSelection);
 
   }
 
   render() {
-    const { latitude, longitude, temp, pressure, humidity } = this.state;
+    const { latitude, longitude, temp, pressure, humidity, dropdownSelection, locationInput } = this.state;
     
     return (
       <div className="App">
@@ -120,13 +131,20 @@ class App extends Component {
           selection
           options={searchOptions}
           className='dropdown-name'
+          onChange={this.handleCityOrZip}
+          value={dropdownSelection}
         />
+        <div>dropdown selection {dropdownSelection}</div>
         <br />
         <div className="subHeader">Search for your location</div>
         <br /><br />
         <Input focus placeholder='Enter city or zip' />
         <br />
-        <Button className='button'>Lets go!</Button>
+        <Button 
+          className='button'
+          onClick={this.handleButtonClick.bind(this, dropdownSelection)}
+          //onClick={this.handleButtonClick(dropdownSelection)}
+        >Lets go!</Button>
         <br />
         <input type="text" value={latitude} />
         <input type="text" value={longitude} />
