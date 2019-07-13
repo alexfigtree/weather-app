@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend } from 'recharts';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend, Tooltip } from 'recharts';
 import './App.css';
 
 
@@ -60,7 +60,7 @@ class App extends Component {
 
   //getWeatherLatLong makes API call with user's lat/long
   getWeatherLatLong(lat, long){
-    const APIKEY =  '18aaef05aea27a3ddbb3d40975b82b7a';
+    const APIKEY = '18aaef05aea27a3ddbb3d40975b82b7a';
     let apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=";
 
     fetch(apiUrl + lat + "&lon=" + long + "&APPID=" + APIKEY + "&units=imperial")
@@ -93,7 +93,7 @@ class App extends Component {
 
   //getWeatherByCityName makes API call with user's City name
   getWeatherByCityName(cityName){
-    const APIKEY =  '18aaef05aea27a3ddbb3d40975b82b7a';
+    const APIKEY = '18aaef05aea27a3ddbb3d40975b82b7a';
     let apiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
 
     fetch(apiUrl + cityName + "&APPID=" + APIKEY + "&units=imperial")
@@ -124,10 +124,13 @@ class App extends Component {
       )
   }
 
+  handleInput(event: Object, data) {
+    this.setState({ [data.name]: data.value });
+  }
+
   handleCityOrLatLong = (e, { value }) => 
     this.setState({ dropdownSelection: value });
 
-  //handle input text
   handleCityName = (e, { value }) => 
     this.setState({ cityName: value });
 
@@ -139,36 +142,31 @@ class App extends Component {
 
   handleButtonClick(dropdownSelection){
     //const {dropdownSelection} = this.state;
-
+/*
     console.log('values so far:');
     console.log('you chose', dropdownSelection);
     console.log('longChosen', this.state.longChosen);
     console.log('latChosen', this.state.latChosen);
-    console.log('this.state.cityname', this.state.cityName);
+    console.log('this.state.cityname', this.state.cityName);*/
     if(dropdownSelection === 'City'){
       this.getWeatherByCityName(this.state.cityName);
     }else{
       this.getWeatherLatLong(this.state.latChosen, this.state.longChosen);
     }
-
-/*    if(dropdownSelection == 'City'){
-      this.setState({
-        cityChosen: true,
-      });
-    }else{
-      this.setState({
-        zipChosen: true,
-      });
-    }
-
-    let urlToCall = ' ';*/
-
   }
 
-
-
   render() {
-    const { latitude, longitude, temp, pressure, humidity, dropdownSelection, locationInput } = this.state;
+    const { 
+      latitude,
+      latInput,
+      longitude,
+      longInput,
+      temp,
+      pressure,
+      humidity,
+      dropdownSelection,
+      locationInput
+    } = this.state;
     
     return (
       <div className="App">
@@ -185,7 +183,6 @@ class App extends Component {
           onChange={this.handleCityOrLatLong}
           value={dropdownSelection}
         />
-        <div>dropdown selection {dropdownSelection}</div>
         <br />
         <div className="subHeader">Search for your location</div>
         <br /><br />
@@ -196,9 +193,9 @@ class App extends Component {
 
         {this.state.dropdownSelection === 'Lat/Long' && (
           <div>
-            <Input focus placeholder='Enter latitude' type="text" value={latitude} onChange={this.handleLat}/>
-            <br />
-            <Input focus placeholder='Enter longitude' type="text" value={longitude} onChange={this.handleLong}/>
+            <Input focus placeholder='Enter latitude' type="text" value={latInput} onChange={this.handleLat}/>
+            <br /><br />
+            <Input focus placeholder='Enter longitude' type="text" value={longInput} onChange={this.handleLong}/>
           </div>
         )}
 
@@ -210,20 +207,25 @@ class App extends Component {
         >Lets go!</Button>
 
         <br />
+
+        <div className="subHeaderResults">At Your Location:</div>
+        <br />
+
         <div>Lat: {latitude}</div>
         <div>Long: {longitude}</div>
+        <div>Temp: {temp}</div>
+        <div>Pressure: {pressure}</div>
+        <div>Humidity: {humidity}</div>
 
-        <div>temp: {temp}</div>
-        <div>pressure: {pressure}</div>
-        <div>humidity: {humidity}</div>
-
+        <div className="subHeaderResults">At Selected Location:</div>
+        <br />
         {this.state.tempData && (
           <div>
             <div className="subHeader">Temperature results:</div>
             <LineChart width={250} height={200} data={this.state.tempData}>
               <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
               <CartesianGrid stroke="#ccc" />
-             
+              <Tooltip />
               <YAxis />
               <Legend />
             </LineChart>
@@ -236,7 +238,7 @@ class App extends Component {
             <LineChart width={250} height={200} data={this.state.humidityData}>
               <Line type="monotone" dataKey="humidity" stroke="#82ca9d" />
               <CartesianGrid stroke="#ccc" />
-          
+              <Tooltip />
               <YAxis />
               <Legend />
             </LineChart>
@@ -249,7 +251,7 @@ class App extends Component {
             <LineChart width={250} height={200} data={this.state.presureData}>
               <Line type="monotone" dataKey="pressure" stroke="#8884d8" />
               <CartesianGrid stroke="#ccc" />
-             
+              <Tooltip />
               <YAxis />
               <Legend />
             </LineChart>
