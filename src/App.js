@@ -69,6 +69,7 @@ class App extends Component {
     this.makeApiCall(urlForApi);
   }
 
+  //makes API call with specific url
   makeApiCall(urlForApi){
     fetch(urlForApi)
       .then(res => res.json())
