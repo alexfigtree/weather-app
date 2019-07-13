@@ -25,11 +25,6 @@ class App extends Component {
     this.state = {
       error: null,
       isLoaded: false,
-      cityChosen: false,
-      zipChosen: false,
-      showNameInput: false,
-      showLatLongInput: false,
-      items: [],
       latitude: '',
       longitude: '',
     };
@@ -62,41 +57,20 @@ class App extends Component {
   getWeatherLatLong(lat, long){
     const APIKEY = '18aaef05aea27a3ddbb3d40975b82b7a';
     let apiUrl = "http://api.openweathermap.org/data/2.5/weather?lat=";
-
-    fetch(apiUrl + lat + "&lon=" + long + "&APPID=" + APIKEY + "&units=imperial")
-      .then(res => res.json())
-      .then(
-        (json) => {
-          console.log('json', json);
-          this.setState({
-            isLoaded: true,
-            coord: json.coord,
-            temp: json.main.temp,
-            pressure: json.main.pressure,
-            humidity: json.main.humidity,
-            tempData: [{name: 'right now', temperature: json.main.temp}],
-            humidityData: [{name: 'right now', humidity: json.main.humidity}],
-            presureData: [{name: 'right now', pressure: json.main.pressure}],
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
+    let urlForApi = apiUrl + lat + "&lon=" + long + "&APPID=" + APIKEY + "&units=imperial";
+    this.makeApiCall(urlForApi);
   }
 
   //getWeatherByCityName makes API call with user's City name
   getWeatherByCityName(cityName){
     const APIKEY = '18aaef05aea27a3ddbb3d40975b82b7a';
     let apiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
+    let urlForApi = apiUrl + cityName + "&APPID=" + APIKEY + "&units=imperial";
+    this.makeApiCall(urlForApi);
+  }
 
-    fetch(apiUrl + cityName + "&APPID=" + APIKEY + "&units=imperial")
+  makeApiCall(urlForApi){
+    fetch(urlForApi)
       .then(res => res.json())
       .then(
         (json) => {
@@ -122,10 +96,6 @@ class App extends Component {
           });
         }
       )
-  }
-
-  handleInput(event: Object, data) {
-    this.setState({ [data.name]: data.value });
   }
 
   handleCityOrLatLong = (e, { value }) => 
@@ -141,13 +111,6 @@ class App extends Component {
     this.setState({ longChosen: value });
 
   handleButtonClick(dropdownSelection){
-    //const {dropdownSelection} = this.state;
-/*
-    console.log('values so far:');
-    console.log('you chose', dropdownSelection);
-    console.log('longChosen', this.state.longChosen);
-    console.log('latChosen', this.state.latChosen);
-    console.log('this.state.cityname', this.state.cityName);*/
     if(dropdownSelection === 'City'){
       this.getWeatherByCityName(this.state.cityName);
     }else{
@@ -193,7 +156,7 @@ class App extends Component {
 
         {this.state.dropdownSelection === 'Lat/Long' && (
           <div>
-            <Input focus placeholder='Enter latitude' type="text" value={latInput} onChange={this.handleLat}/>
+            <Input focus placeholder='Enter latitude' type="text" name="latChosen" value={latInput} onChange={this.handleLat}/>
             <br /><br />
             <Input focus placeholder='Enter longitude' type="text" value={longInput} onChange={this.handleLong}/>
           </div>
